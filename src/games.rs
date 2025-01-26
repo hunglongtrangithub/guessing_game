@@ -2,17 +2,7 @@ mod christmas_lyrics;
 mod fibonacci;
 mod guessing_game;
 mod temp_converter;
-
-mod utils {
-    use std::io;
-    use std::io::Write;
-    use termion::clear;
-
-    pub fn clear_screen() {
-        print!("{}", clear::All);
-        io::stdout().flush().unwrap();
-    }
-}
+mod utils;
 
 use christmas_lyrics::christmas_lyrics;
 use fibonacci::fibonacci;
