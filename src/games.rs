@@ -1,8 +1,18 @@
-use crate::utils;
 use convert_case::{Case, Casing};
 use rand::Rng;
 use std::cmp::Ordering;
 use std::io;
+
+mod utils {
+    use std::io;
+    use std::io::Write;
+    use termion::clear;
+
+    pub fn clear_screen() {
+        print!("{}", clear::All);
+        io::stdout().flush().unwrap();
+    }
+}
 
 fn guessing_game() {
     utils::clear_screen();
