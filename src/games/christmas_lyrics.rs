@@ -1,4 +1,4 @@
-use crate::games::utils;
+use crate::utils;
 use convert_case::{Case, Casing};
 
 pub fn christmas_lyrics() {

@@ -1,7 +1,6 @@
-use crate::games::utils;
+use crate::utils;
 use rand::Rng;
 use std::cmp::Ordering;
-use std::io;
 
 pub fn guessing_game() {
     utils::clear_screen();
@@ -11,10 +10,7 @@ pub fn guessing_game() {
     loop {
         println!("Enter your guess:");
 
-        let mut guess = String::new();
-        io::stdin()
-            .read_line(&mut guess)
-            .expect("Failed to read line");
+        let guess = utils::read_input();
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
             Err(_) => {

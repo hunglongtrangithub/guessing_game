@@ -1,15 +1,11 @@
-use crate::games::utils;
-use std::io;
+use crate::utils;
 
 pub fn temp_converter() {
     utils::clear_screen();
     println!("Temperature Converter");
     loop {
         println!("Enter the temperature in degrees:");
-        let mut degrees = String::new();
-        io::stdin()
-            .read_line(&mut degrees)
-            .expect("Failed to read line");
+        let degrees = utils::read_input();
         let degrees = match degrees.trim().parse::<f64>() {
             Ok(num) => num,
             Err(_) => {
@@ -19,10 +15,7 @@ pub fn temp_converter() {
         };
 
         println!("Enter the unit to convert to (C/F):");
-        let mut unit = String::new();
-        io::stdin()
-            .read_line(&mut unit)
-            .expect("Failed to read line");
+        let unit = utils::read_input();
 
         match unit.trim().to_lowercase().as_str() {
             "f" => {
