@@ -1,4 +1,5 @@
 use crate::utils;
+use regex::Regex;
 
 fn convert_to_pig_latin(word: &str) -> String {
     let vowels = "aiueo";
@@ -18,14 +19,20 @@ fn convert_to_pig_latin(word: &str) -> String {
 
 pub fn launch() {
     utils::clear_screen();
+    let re = Regex::new(r"[a-zA-Z]+").expect("Failed to compile regex. You dumbass, wrong regex!");
     loop {
-        println!("Enter a word to convert to Pig Latin, or press Enter to go back");
-        let word = utils::read_input();
-        if word.trim().is_empty() {
+        println!("Enter sentence to convert to Pig Latin, or press Enter to go back");
+        let sentence = utils::read_input();
+        if sentence.trim().is_empty() {
             break;
         }
-        let word = word.trim();
-        let pig_latin = convert_to_pig_latin(word);
-        println!("Pig Latin: {}", pig_latin);
+
+        let replacement = |caps: &regex::Captures| {
+            let word = caps.get(0).unwrap().as_str();
+            convert_to_pig_latin(word)
+        };
+
+        let result = re.replace_all(&sentence, &replacement);
+        println!("Pig Latin: {}", result);
     }
 }

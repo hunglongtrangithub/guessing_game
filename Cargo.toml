@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 convert_case = "0.7.1"
 rand = "0.8.5"
+regex = "1.11.1"
 termion = "4.0.3"
