@@ -1,6 +1,6 @@
 use guessing_game::{exercises, games, utils};
 
-fn main() {
+fn launch() {
     loop {
         utils::clear_screen();
         // check if user wants to play a game or solve an exercise
@@ -29,4 +29,8 @@ fn main() {
         }
     }
     println!("Thanks for playing! See you next time!")
+}
+
+fn main() {
+    launch();
 }
