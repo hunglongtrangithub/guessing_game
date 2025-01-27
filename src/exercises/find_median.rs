@@ -13,18 +13,35 @@ fn find_median(arr: Vec<i32>) -> f64 {
 }
 
 pub fn launch() {
+    utils::clear_screen();
+    println!("Find Median");
     loop {
-        println!("Find Median");
         println!(
-        "Enter a list of numbers separated by commas, or type 'exit' to return to the main menu"
+        "Enter a list of integers separated by commas, or type 'exit' to return to the main menu"
     );
+
         let input = utils::read_input();
-        // TODO: Parse the input into a vector of integers
+
         if input.trim() == "exit" {
             break;
         }
-        let arr = vec![1, 2, 3, 4, 5];
-        println!("Array: {:?}", arr);
-        println!("Median: {}", find_median(arr));
+
+        let arr_result: Result<Vec<i32>, _> =
+            input.split(",").map(|x| x.trim().parse::<i32>()).collect();
+
+        match arr_result {
+            Ok(arr) => {
+                if arr.is_empty() {
+                    println!("You entered an empty list. Try again.");
+                    continue;
+                }
+                println!("Array: {:?}", arr);
+                println!("Median: {}", find_median(arr));
+            }
+            Err(_) => {
+                println!("Invalid input. Please enter a valid list of integers.");
+                continue;
+            }
+        }
     }
 }
