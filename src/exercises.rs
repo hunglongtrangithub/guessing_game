@@ -32,5 +32,11 @@ pub fn launch_exercises() {
                 continue;
             }
         }
+
+        println!("Do you want to run another program? (y/n)");
+        match utils::read_input().trim() {
+            "y" => continue,
+            _ => break,
+        }
     }
 }

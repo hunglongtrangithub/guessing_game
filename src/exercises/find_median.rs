@@ -17,12 +17,12 @@ pub fn launch() {
     println!("Find Median");
     loop {
         println!(
-        "Enter a list of integers separated by commas, or type 'exit' to return to the main menu"
+        "Enter a list of integers separated by commas, or just press Enter to return to the main menu"
     );
 
         let input = utils::read_input();
 
-        if input.trim() == "exit" {
+        if input.trim() == "" {
             break;
         }
 

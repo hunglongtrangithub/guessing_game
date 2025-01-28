@@ -46,6 +46,4 @@ pub fn launch_games() {
             _ => break,
         }
     }
-
-    println!("Goodbye!");
 }
