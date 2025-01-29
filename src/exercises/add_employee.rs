@@ -57,9 +57,17 @@ pub fn launch() {
                 utils::clear_screen();
                 println!("Enter employee name:");
                 let name = utils::read_input();
+                if name.trim().is_empty() {
+                    println!("Employee name cannot be empty");
+                    continue;
+                }
                 println!("Enter department:");
                 let department = utils::read_input();
-                let employee_already_exist = company.add_employee(&name, &department);
+                if department.trim().is_empty() {
+                    println!("Department name cannot be empty");
+                    continue;
+                }
+                let employee_already_exist = company.add_employee(name.trim(), department.trim());
                 if employee_already_exist {
                     println!("Employee already exists in the department");
                 } else {
@@ -85,14 +93,11 @@ pub fn launch() {
                 match selection {
                     1 => {
                         utils::clear_screen();
-                        if company.employee_department.is_empty() {
-                            println!("No employees found");
-                            continue;
-                        }
                         for (department, employees) in &company.department_employee {
                             println!("Department: {}", department);
-                            for employee in employees {
-                                println!("Employee: {}", employee);
+                            println!("{}", "=".repeat(20));
+                            for (i, employee) in employees.iter().enumerate() {
+                                println!("{}. {}", i, employee);
                             }
                             println!();
                         }
@@ -103,8 +108,8 @@ pub fn launch() {
                         let department = utils::read_input();
                         match company.department_employee.get(&department) {
                             Some(employees) => {
-                                for employee in employees {
-                                    println!("Employee: {}", employee);
+                                for (i, employee) in employees.iter().enumerate() {
+                                    println!("{}. {}", i, employee);
                                 }
                             }
                             None => println!("Department not found"),
@@ -116,8 +121,8 @@ pub fn launch() {
                         let name = utils::read_input();
                         match company.employee_department.get(&name) {
                             Some(departments) => {
-                                for department in departments {
-                                    println!("Department: {}", department);
+                                for (i, department) in departments.iter().enumerate() {
+                                    println!("{}. {}", i, department);
                                 }
                             }
                             None => println!("Employee not found"),

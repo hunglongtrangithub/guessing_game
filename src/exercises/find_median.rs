@@ -22,7 +22,7 @@ pub fn launch() {
 
         let input = utils::read_input();
 
-        if input.trim() == "" {
+        if input.trim().is_empty() {
             break;
         }
 

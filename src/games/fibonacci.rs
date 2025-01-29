@@ -4,8 +4,11 @@ pub fn fibonacci() {
     utils::clear_screen();
     println!("Fibonacci Series");
     loop {
-        println!("Enter the number of terms:");
+        println!("Enter the number of terms, or press Enter to exit:");
         let n = utils::read_input();
+        if n.trim().is_empty() {
+            break;
+        }
         let n = match n.trim().parse::<u8>() {
             Ok(num) => {
                 if num > 99 {
@@ -31,6 +34,5 @@ pub fn fibonacci() {
             i += 1;
         }
         println!();
-        break;
     }
 }
