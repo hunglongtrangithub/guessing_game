@@ -33,7 +33,7 @@ pub fn launch_exercises() {
             }
         }
 
-        println!("Do you want to run another program? (y/n)");
+        println!("Do you want to run another exercise? (y/n)");
         match utils::read_input().trim() {
             "y" => continue,
             _ => break,

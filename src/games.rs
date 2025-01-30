@@ -40,7 +40,7 @@ pub fn launch_games() {
             }
         }
 
-        println!("Do you want to run another program? (y/n)");
+        println!("Do you want to run another game? (y/n)");
         match utils::read_input().trim() {
             "y" => continue,
             _ => break,

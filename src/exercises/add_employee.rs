@@ -38,6 +38,7 @@ pub fn launch() {
     let mut company = Company::new();
     println!("Add or see employees to your company!");
     loop {
+        utils::clear_screen();
         println!("1. Add a new employee");
         println!("2. Search the company");
         println!("0. Back");
@@ -74,7 +75,7 @@ pub fn launch() {
                     println!("Employee added successfully to the department");
                 }
             }
-            2 => {
+            2 => loop {
                 utils::clear_screen();
                 println!("1. View all employees");
                 println!("2. View employees by department");
@@ -93,13 +94,17 @@ pub fn launch() {
                 match selection {
                     1 => {
                         utils::clear_screen();
-                        for (department, employees) in &company.department_employee {
-                            println!("Department: {}", department);
-                            println!("{}", "=".repeat(20));
-                            for (i, employee) in employees.iter().enumerate() {
-                                println!("{}. {}", i, employee);
+                        if company.employee_department.is_empty() {
+                            println!("No employees in the company");
+                        } else {
+                            for (department, employees) in &company.department_employee {
+                                println!("Department: {}", department);
+                                println!("{}", "=".repeat(20));
+                                for (i, employee) in employees.iter().enumerate() {
+                                    println!("{}. {}", i, employee);
+                                }
+                                println!();
                             }
-                            println!();
                         }
                     }
                     2 => {
@@ -134,7 +139,10 @@ pub fn launch() {
                         continue;
                     }
                 }
-            }
+
+                println!("Press enter to continue...");
+                utils::read_input();
+            },
             0 => break,
             _ => {
                 println!("Invalid selection");
