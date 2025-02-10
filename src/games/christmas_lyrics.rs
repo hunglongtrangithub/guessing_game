@@ -1,7 +1,7 @@
 use crate::utils;
 use convert_case::{Case, Casing};
 
-pub fn christmas_lyrics() {
+pub fn launch() {
     utils::clear_screen();
     println!("Christmas Carol Lyrics: Twelve Days of Christmas\n");
     let combined = [

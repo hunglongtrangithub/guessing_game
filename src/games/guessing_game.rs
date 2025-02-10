@@ -2,7 +2,7 @@ use crate::utils;
 use rand::Rng;
 use std::cmp::Ordering;
 
-pub fn guessing_game() {
+pub fn launch() {
     utils::clear_screen();
     println!("Welcome to guessing game!");
 

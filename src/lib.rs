@@ -1,3 +1,4 @@
+pub mod dsa;
 pub mod exercises;
 pub mod games;
 pub mod utils;
@@ -9,6 +10,7 @@ pub fn launch() {
         println!("Do you want to play a game or solve an exercise?");
         println!("1. Play a game");
         println!("2. Solve an exercise");
+        println!("3. Data structures and algorithms");
         println!("0. Exit");
         let game_or_exercise = utils::read_input();
 
@@ -21,8 +23,9 @@ pub fn launch() {
         };
 
         match game_or_exercise {
-            1 => games::launch_games(),
-            2 => exercises::launch_exercises(),
+            1 => games::launch(),
+            2 => exercises::launch(),
+            3 => dsa::launch(),
             0 => break,
             _ => {
                 println!("Invalid selection");

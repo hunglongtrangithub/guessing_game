@@ -4,12 +4,8 @@ mod guessing_game;
 mod temp_converter;
 
 use crate::utils;
-use christmas_lyrics::christmas_lyrics;
-use fibonacci::fibonacci;
-use guessing_game::guessing_game;
-use temp_converter::temp_converter;
 
-pub fn launch_games() {
+pub fn launch() {
     loop {
         utils::clear_screen();
         println!("Select the program to run:");
@@ -29,10 +25,10 @@ pub fn launch_games() {
         };
 
         match selection {
-            1 => guessing_game(),
-            2 => temp_converter(),
-            3 => fibonacci(),
-            4 => christmas_lyrics(),
+            1 => guessing_game::launch(),
+            2 => temp_converter::launch(),
+            3 => fibonacci::launch(),
+            4 => christmas_lyrics::launch(),
             0 => break,
             _ => {
                 println!("Invalid selection");

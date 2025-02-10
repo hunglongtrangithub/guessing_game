@@ -1,6 +1,6 @@
 use crate::utils;
 
-pub fn temp_converter() {
+pub fn launch() {
     utils::clear_screen();
     println!("Temperature Converter");
     loop {

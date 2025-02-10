@@ -3,7 +3,7 @@ mod find_median;
 mod pig_latin;
 
 use crate::utils;
-pub fn launch_exercises() {
+pub fn launch() {
     loop {
         utils::clear_screen();
         println!("Exercises:");

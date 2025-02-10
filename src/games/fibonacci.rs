@@ -1,6 +1,6 @@
 use crate::utils;
 
-pub fn fibonacci() {
+pub fn launch() {
     utils::clear_screen();
     println!("Fibonacci Series");
     loop {
