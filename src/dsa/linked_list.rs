@@ -1,5 +1,5 @@
 use crate::utils;
-use std::{mem, ops::Drop};
+use std::ops::Drop;
 
 struct Node {
     val: i32,
@@ -34,19 +34,17 @@ impl LinkedList {
         self.head = Some(new_node);
     }
 
-    fn pop_front(&mut self, log: bool) -> Option<i32> {
+    fn pop_front(&mut self) -> Option<i32> {
         self.head.take().map(|mut node| {
             self.head = node.next.take();
-            if log {
-                println!("Popped node with value {}", node.val);
-            }
             node.val
         })
     }
 
     fn drop(mut self) {
         while self.head.is_some() {
-            self.pop_front(true);
+            let val = self.pop_front();
+            println!("Popped node with value {:?}", val);
         }
     }
 
@@ -103,34 +101,70 @@ pub fn launch() {
         let input = utils::read_input();
         let vec: Vec<i32> = input
             .split_whitespace()
-            .map(|s| s.parse::<i32>().expect("expect i32 value"))
+            .filter_map(|s| s.parse::<i32>().ok())
             .collect();
+        {
+            let mut list = LinkedList::from_vec(vec);
+            list.print();
 
-        let mut list = LinkedList::from_vec(vec);
-        list.print();
+            list.reverse();
+            println!("Reversed list:");
+            list.print();
 
-        list.reverse();
-        println!("Reversed list:");
-        list.print();
+            println!("To vector:");
+            println!("{:?}", list.to_vec());
 
-        println!("To vector:");
-        println!("{:?}", list.to_vec());
-
-        println!("Drop the linked list using mem::drop (y) or drop method (n)?");
-        match utils::read_input().trim() {
-            "y" => {
-                println!("Using mem::drop:");
-                mem::drop(list);
-            }
-            _ => {
-                println!("Using drop method:");
-                list.drop();
+            println!("Drop the linked list using mem::drop (y) or drop method (n)?");
+            match utils::read_input().trim() {
+                "n" => {
+                    println!("Using drop method:");
+                    list.drop();
+                }
+                _ => {
+                    println!("Using mem::drop:");
+                }
             }
         }
-
+        println!("You should see the nodes being dropped before this message");
         println!("Continue? (y/n)");
         if utils::read_input().trim() != "y" {
             break;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_linked_list() {
+        let mut list = LinkedList::new();
+        list.push_front(1);
+        list.push_front(2);
+        list.push_front(3);
+        assert_eq!(list.pop_front(), Some(3));
+        assert_eq!(list.pop_front(), Some(2));
+        assert_eq!(list.pop_front(), Some(1));
+        assert_eq!(list.pop_front(), None);
+    }
+
+    #[test]
+    fn test_linked_list_reverse() {
+        let mut list = LinkedList::new();
+        list.push_front(1);
+        list.push_front(2);
+        list.push_front(3);
+        list.reverse();
+        assert_eq!(list.pop_front(), Some(1));
+        assert_eq!(list.pop_front(), Some(2));
+        assert_eq!(list.pop_front(), Some(3));
+        assert_eq!(list.pop_front(), None);
+    }
+
+    #[test]
+    fn test_linked_list_from_vec() {
+        let list = LinkedList::from_vec(vec![1, 2, 3]);
+        assert_eq!(list.to_vec(), vec![1, 2, 3]);
     }
 }
