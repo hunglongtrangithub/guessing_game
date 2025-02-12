@@ -1,4 +1,5 @@
 use crate::utils;
+use std::{mem, ops::Drop};
 
 struct Node {
     val: i32,
@@ -11,6 +12,13 @@ impl Node {
     }
 }
 
+impl Drop for Node {
+    /// To demonstrate how nodes are dropped
+    fn drop(&mut self) {
+        println!("Dropping Node with value {}", self.val);
+    }
+}
+
 struct LinkedList {
     head: Option<Box<Node>>,
 }
@@ -20,10 +28,26 @@ impl LinkedList {
         LinkedList { head: None }
     }
 
-    fn push_head(&mut self, val: i32) {
+    fn push_front(&mut self, val: i32) {
         let mut new_node = Box::new(Node::new(val));
         new_node.next = self.head.take();
         self.head = Some(new_node);
+    }
+
+    fn pop_front(&mut self, log: bool) -> Option<i32> {
+        self.head.take().map(|mut node| {
+            self.head = node.next.take();
+            if log {
+                println!("Popped node with value {}", node.val);
+            }
+            node.val
+        })
+    }
+
+    fn drop(mut self) {
+        while self.head.is_some() {
+            self.pop_front(true);
+        }
     }
 
     fn reverse(&mut self) {
@@ -45,7 +69,7 @@ impl LinkedList {
     fn from_vec(vec: Vec<i32>) -> Self {
         let mut list = LinkedList::new();
         for val in vec.iter().rev() {
-            list.push_head(*val)
+            list.push_front(*val)
         }
         list
     }
@@ -74,22 +98,38 @@ pub fn launch() {
     loop {
         utils::clear_screen();
         println!("Linked List");
+
         println!("Write a list of numbers separated by spaces");
         let input = utils::read_input();
         let vec: Vec<i32> = input
             .split_whitespace()
-            .map(|s| s.parse().expect("parse error"))
+            .map(|s| s.parse::<i32>().expect("expect i32 value"))
             .collect();
+
         let mut list = LinkedList::from_vec(vec);
         list.print();
+
         list.reverse();
         println!("Reversed list:");
         list.print();
+
         println!("To vector:");
         println!("{:?}", list.to_vec());
+
+        println!("Drop the linked list using mem::drop (y) or drop method (n)?");
+        match utils::read_input().trim() {
+            "y" => {
+                println!("Using mem::drop:");
+                mem::drop(list);
+            }
+            _ => {
+                println!("Using drop method:");
+                list.drop();
+            }
+        }
+
         println!("Continue? (y/n)");
-        let continue_or_not = utils::read_input();
-        if continue_or_not.trim() != "y" {
+        if utils::read_input().trim() != "y" {
             break;
         }
     }
