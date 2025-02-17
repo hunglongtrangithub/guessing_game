@@ -27,7 +27,7 @@ pub fn launch() {
         }
 
         let arr_result: Result<Vec<i32>, _> =
-            input.split(",").map(|x| x.trim().parse::<i32>()).collect();
+            input.split(',').map(|x| x.trim().parse::<i32>()).collect();
 
         match arr_result {
             Ok(arr) => {

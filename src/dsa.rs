@@ -1,5 +1,6 @@
 use crate::utils;
 mod deque;
+mod heap;
 mod stack;
 
 pub fn launch() {
@@ -8,8 +9,8 @@ pub fn launch() {
         println!("Data structures and algorithms");
         println!("1. Stack");
         println!("2. Deque");
-        println!("3. Binary Search Tree");
-        println!("4. Graph");
+        println!("3. Heap");
+        println!("4. Binary Search Tree");
         println!("0. Back");
 
         let selection = crate::utils::read_input();
@@ -24,7 +25,7 @@ pub fn launch() {
         match selection {
             1 => stack::launch(),
             2 => deque::launch(),
-            3 => println!("Binary Search Tree"),
+            3 => heap::launch(),
             4 => println!("Graph"),
             0 => return,
             _ => {
