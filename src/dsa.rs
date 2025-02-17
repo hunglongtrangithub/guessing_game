@@ -1,4 +1,5 @@
 use crate::utils;
+mod deque;
 mod stack;
 
 pub fn launch() {
@@ -6,7 +7,7 @@ pub fn launch() {
         utils::clear_screen();
         println!("Data structures and algorithms");
         println!("1. Stack");
-        println!("2. Queue");
+        println!("2. Deque");
         println!("3. Binary Search Tree");
         println!("4. Graph");
         println!("0. Back");
@@ -22,7 +23,7 @@ pub fn launch() {
 
         match selection {
             1 => stack::launch(),
-            2 => println!("Queue"),
+            2 => deque::launch(),
             3 => println!("Binary Search Tree"),
             4 => println!("Graph"),
             0 => return,
