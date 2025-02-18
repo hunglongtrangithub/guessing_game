@@ -86,28 +86,28 @@ where
     fn push_head(&mut self, val: T) {
         let new_head = Rc::new(RefCell::new(DoublyNode::new(val)));
 
-        let old_head = self.header.borrow().next.as_ref().unwrap().clone();
+        let mut header_mut = self.header.borrow_mut();
+        let old_head = header_mut.next.as_ref().unwrap();
+        old_head.borrow_mut().prev = Some(Rc::clone(&new_head));
 
-        new_head.borrow_mut().next = Some(Rc::clone(&old_head));
+        new_head.borrow_mut().next = Some(Rc::clone(old_head));
         new_head.borrow_mut().prev = Some(Rc::clone(&self.header));
 
-        old_head.borrow_mut().prev = Some(Rc::clone(&new_head));
-        self.header.borrow_mut().next = Some(new_head);
-
+        header_mut.next = Some(new_head);
         self.length += 1;
     }
 
     fn push_tail(&mut self, val: T) {
         let new_tail = Rc::new(RefCell::new(DoublyNode::new(val)));
 
-        let old_tail = self.trailer.borrow().prev.as_ref().unwrap().clone();
+        let mut trailer_mut = self.trailer.borrow_mut();
+        let old_tail = trailer_mut.prev.as_ref().unwrap();
+        old_tail.borrow_mut().next = Some(Rc::clone(&new_tail));
 
-        new_tail.borrow_mut().prev = Some(Rc::clone(&old_tail));
+        new_tail.borrow_mut().prev = Some(Rc::clone(old_tail));
         new_tail.borrow_mut().next = Some(Rc::clone(&self.trailer));
 
-        old_tail.borrow_mut().next = Some(Rc::clone(&new_tail));
-        self.trailer.borrow_mut().prev = Some(new_tail);
-
+        trailer_mut.prev = Some(new_tail);
         self.length += 1;
     }
 
@@ -116,14 +116,18 @@ where
             return None;
         }
 
+        // clone header.next to avoid borrowing issues with self.header
+        // here header's immutable borrow is released right after this line
         let old_head = self.header.borrow().next.as_ref().unwrap().clone();
-        let new_head = old_head.borrow().next.as_ref().unwrap().clone();
+        let old_head_ref = old_head.borrow();
+        let new_head = old_head_ref.next.as_ref().unwrap();
 
-        self.header.borrow_mut().next = Some(Rc::clone(&new_head));
+        // so we can safely mutate header here
         new_head.borrow_mut().prev = Some(Rc::clone(&self.header));
+        self.header.borrow_mut().next = Some(Rc::clone(new_head));
 
         self.length -= 1;
-        Some(old_head.clone().borrow().val.clone())
+        Some(old_head_ref.val.clone())
     }
 
     fn pop_tail(&mut self) -> Option<T> {
@@ -131,24 +135,53 @@ where
             return None;
         }
 
+        // clone trailer.prev to avoid borrowing issues with self.trailer
+        // here trailer's immutqble borrow is released right after this line
         let old_tail = self.trailer.borrow().prev.as_ref().unwrap().clone();
-        let new_tail = old_tail.borrow().prev.as_ref().unwrap().clone();
+        let old_tail_ref = old_tail.borrow();
+        let new_tail = old_tail_ref.prev.as_ref().unwrap();
 
-        self.trailer.borrow_mut().prev = Some(new_tail.clone());
+        // so we can safely mutate trailer here
+        self.trailer.borrow_mut().prev = Some(Rc::clone(new_tail));
         new_tail.borrow_mut().next = Some(Rc::clone(&self.trailer));
 
         self.length -= 1;
-        Some(old_tail.clone().borrow().val.clone())
+        Some(old_tail_ref.val.clone())
+    }
+
+    fn reverse(&mut self) {
+        if self.length <= 1 {
+            return;
+        }
+        let mut curr = Some(self.header.clone());
+        while let Some(node) = curr {
+            let mut node_mut = node.borrow_mut();
+            let next = node_mut.next.clone();
+            let prev = node_mut.prev.clone();
+            node_mut.next = prev;
+            node_mut.prev = next;
+            // unsafe {
+            //     std::ptr::swap(&mut node_mut.next as *mut _, &mut node_mut.prev as *mut _);
+            // }
+            // std::mem::swap(&mut node_mut.next, &mut node_mut.prev);
+            curr = node_mut.prev.clone();
+        }
+
+        std::mem::swap(&mut self.header, &mut self.trailer);
     }
 
     fn print(&self) {
-        let mut curr = self.header.borrow().next.as_ref().unwrap().clone();
-        print!("(Head) <-> ");
-        while !Rc::ptr_eq(&curr, &self.trailer) {
-            print!("{} <-> ", curr.borrow().val);
-            curr = curr.clone().borrow().next.as_ref().unwrap().clone();
+        print!("Header <-> ");
+        let mut curr_node = self.header.borrow().next.clone();
+        while let Some(node) = curr_node {
+            let node_ref = node.borrow();
+            if node.borrow().next.is_none() {
+                println!("Trailer");
+                break;
+            }
+            print!("{} <-> ", node_ref.val);
+            curr_node = node_ref.next.clone();
         }
-        println!("(Tail)");
     }
 }
 
@@ -227,6 +260,10 @@ where
         self.list.pop_tail()
     }
 
+    fn reverse(&mut self) {
+        self.list.reverse();
+    }
+
     fn print(&self) {
         self.list.print();
     }
@@ -248,6 +285,7 @@ pub fn launch() {
         println!("7. Check if Empty");
         println!("8. Get Length");
         println!("9. Convert Deque to Vector");
+        println!("10. Reverse Deque");
         println!("0. Exit");
 
         let choice = utils::read_input();
@@ -308,6 +346,10 @@ pub fn launch() {
                 let vec = deque.to_vec();
                 println!("Deque as vector: {:?}", vec);
             }
+            10 => {
+                deque.reverse();
+                println!("Deque reversed.");
+            }
             0 => {
                 break;
             }
@@ -364,6 +406,42 @@ mod tests {
 
         assert_eq!(deque.pop_back(), Some("1".to_string()));
         assert_eq!(deque.pop_back(), Some("0".to_string()));
+        assert!(deque.empty());
+    }
+
+    #[test]
+    fn test_deque_from_vec() {
+        let vec = vec!["1".to_string(), "2".to_string(), "3".to_string()];
+        let deque = Deque::from_vec(vec);
+
+        assert_eq!(deque.len(), 3);
+        assert_eq!(deque.peek_front(), Some("1".to_string()));
+        assert_eq!(deque.peek_back(), Some("3".to_string()));
+    }
+
+    #[test]
+    fn test_deque_to_vec() {
+        let mut deque = Deque::new();
+        deque.push_back("1".to_string());
+        deque.push_back("2".to_string());
+        deque.push_back("3".to_string());
+
+        let vec = deque.to_vec();
+        assert_eq!(vec, vec!["1".to_string(), "2".to_string(), "3".to_string()]);
+    }
+
+    #[test]
+    fn test_deque_reverse() {
+        let mut deque = Deque::new();
+        deque.push_back("1".to_string());
+        deque.push_back("2".to_string());
+        deque.push_back("3".to_string());
+
+        deque.reverse();
+
+        assert_eq!(deque.pop_front(), Some("3".to_string()));
+        assert_eq!(deque.pop_front(), Some("2".to_string()));
+        assert_eq!(deque.pop_front(), Some("1".to_string()));
         assert!(deque.empty());
     }
 }
