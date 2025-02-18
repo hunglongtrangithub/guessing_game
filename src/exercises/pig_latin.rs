@@ -28,7 +28,7 @@ pub fn launch() {
         }
 
         let replacement = |caps: &regex::Captures| {
-            let word = caps.get(0).unwrap().as_str();
+            let word = caps.get(0).expect("Failed to get word").as_str();
             convert_to_pig_latin(word)
         };
 

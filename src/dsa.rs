@@ -2,6 +2,7 @@ use crate::utils;
 mod deque;
 mod heap;
 mod stack;
+mod tree;
 
 pub fn launch() {
     loop {
@@ -26,7 +27,7 @@ pub fn launch() {
             1 => stack::launch(),
             2 => deque::launch(),
             3 => heap::launch(),
-            4 => println!("Graph"),
+            4 => tree::launch(),
             0 => return,
             _ => {
                 println!("Invalid selection");

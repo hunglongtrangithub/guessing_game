@@ -5,7 +5,7 @@ use termion::clear;
 /// Clear the screen
 pub fn clear_screen() {
     print!("{}", clear::All);
-    io::stdout().flush().unwrap();
+    io::stdout().flush().expect("Failed to flush stdout");
 }
 
 /// Read input from the user
