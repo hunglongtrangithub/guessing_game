@@ -32,11 +32,16 @@ impl BinarySearchTree {
         BinarySearchTree { root: None }
     }
 
+    fn is_empty(&self) -> bool {
+        self.root.is_none()
+    }
+
     fn insert(&mut self, value: i32) {
         let new_node = Box::new(Node::new(value));
         match self.root.as_mut() {
             Some(mut current_node) => loop {
                 if value < current_node.value {
+                    // if value is less than current node, go left
                     match current_node.left {
                         Some(ref mut left) => current_node = left,
                         None => {
@@ -45,6 +50,7 @@ impl BinarySearchTree {
                         }
                     }
                 } else {
+                    // if value is greater than current node, go right
                     match current_node.right {
                         Some(ref mut right) => current_node = right,
                         None => {
@@ -70,23 +76,26 @@ impl BinarySearchTree {
         false
     }
 
-    fn delete(&mut self, value: i32) {
-        self.root = delete_node(self.root.take(), value);
-        fn delete_node(node: Option<Box<Node<i32>>>, value: i32) -> Option<Box<Node<i32>>> {
+    fn delete(&mut self, value: i32) -> bool {
+        let (new_root, found) = delete_node(self.root.take(), value);
+        self.root = new_root;
+        return found;
+        fn delete_node(node: Option<Box<Node<i32>>>, value: i32) -> (Option<Box<Node<i32>>>, bool) {
             match node {
                 Some(mut node) => match node.value.cmp(&value) {
                     std::cmp::Ordering::Equal => match (node.left.take(), node.right.take()) {
                         // leaf node -> remove it
-                        (None, None) => None,
+                        (None, None) => (None, true),
                         // one child -> replace node with child
-                        (Some(left), None) => Some(left),
-                        (None, Some(right)) => Some(right),
+                        (Some(left), None) => (Some(left), true),
+                        (None, Some(right)) => (Some(right), true),
                         // two children
                         (Some(left), Some(right)) => {
                             fn remove_min(
                                 mut node: Box<Node<i32>>,
                             ) -> (i32, Option<Box<Node<i32>>>) {
                                 if let Some(left) = node.left.take() {
+                                    // Recursively find the minimum value in the left subtree; replace the left child with the new subtree.
                                     let (min_value, new_left) = remove_min(left);
                                     node.left = new_left;
                                     (min_value, Some(node))
@@ -99,19 +108,21 @@ impl BinarySearchTree {
                             node.value = min_value;
                             node.right = new_right;
                             node.left = Some(left);
-                            Some(node)
+                            (Some(node), true)
                         }
                     },
                     std::cmp::Ordering::Less => {
-                        node.right = delete_node(node.right.take(), value);
-                        Some(node)
+                        let (new_right, found) = delete_node(node.right.take(), value);
+                        node.right = new_right;
+                        (Some(node), found)
                     }
                     std::cmp::Ordering::Greater => {
-                        node.left = delete_node(node.left.take(), value);
-                        Some(node)
+                        let (new_left, found) = delete_node(node.left.take(), value);
+                        node.left = new_left;
+                        (Some(node), found)
                     }
                 },
-                None => None,
+                None => (None, false),
             }
         }
     }
@@ -120,7 +131,7 @@ impl BinarySearchTree {
         fn traverse(node: &Option<Box<Node<i32>>>) {
             if let Some(node) = node {
                 traverse(&node.left);
-                println!("{}", node.value);
+                print!("{} ", node.value);
                 traverse(&node.right);
             }
         }
@@ -134,7 +145,7 @@ pub fn launch() {
     loop {
         utils::clear_screen();
         println!("Binary Search Tree Operations");
-        println!("1. Insert a value");
+        println!("1. Insert a value / Make a new tree");
         println!("2. Search for a value");
         println!("3. Delete a value");
         println!("4. Display tree (In-order Traversal)");
@@ -153,13 +164,20 @@ pub fn launch() {
 
         match choice {
             1 => {
-                println!("Enter a value to insert:");
+                println!("Enter a value to insert, or multiple values separated by spaces to make a new tree:");
                 let input = utils::read_input();
-                if let Ok(value) = input.trim().parse::<i32>() {
-                    bst.insert(value);
-                    println!("Inserted {} into the BST.", value);
+                let values: Vec<i32> = input
+                    .split_whitespace()
+                    .filter_map(|s| s.parse::<i32>().ok())
+                    .collect();
+                if values.is_empty() {
+                    println!("No valid values entered.");
                 } else {
-                    println!("Invalid input. Please enter a valid integer.");
+                    bst.root = None;
+                    for value in values {
+                        bst.insert(value);
+                    }
+                    println!("Inserted values into the BST.");
                 }
             }
             2 => {
@@ -179,8 +197,11 @@ pub fn launch() {
                 println!("Enter a value to delete:");
                 let input = utils::read_input();
                 if let Ok(value) = input.trim().parse::<i32>() {
-                    bst.delete(value);
-                    println!("Deleted {} from the BST (if it existed).", value);
+                    if bst.delete(value) {
+                        println!("Value {} deleted from the BST.", value);
+                    } else {
+                        println!("Value {} not found in the BST.", value);
+                    }
                 } else {
                     println!("Invalid input. Please enter a valid integer.");
                 }
@@ -190,7 +211,7 @@ pub fn launch() {
                 bst.in_order_traversal();
             }
             5 => {
-                if bst.root.is_none() {
+                if bst.is_empty() {
                     println!("The BST is empty.");
                 } else {
                     println!("The BST is not empty.");
@@ -274,29 +295,46 @@ mod tests {
         bst.insert(4);
         bst.insert(6);
         bst.insert(8);
-        bst.delete(5);
+
+        // Delete existing values
+        assert!(bst.delete(5)); // Root node with two children
         assert!(!bst.search(5));
         assert!(bst.search(3));
         assert!(bst.search(7));
-        assert!(bst.search(2));
-        assert!(bst.search(4));
-        assert!(bst.search(6));
-        assert!(bst.search(8));
-        bst.delete(3);
+
+        assert!(bst.delete(3)); // Node with two children
         assert!(!bst.search(3));
         assert!(bst.search(2));
         assert!(bst.search(4));
-        bst.delete(7);
+
+        assert!(bst.delete(7)); // Node with two children
         assert!(!bst.search(7));
         assert!(bst.search(6));
         assert!(bst.search(8));
-        bst.delete(2);
+
+        assert!(bst.delete(2)); // Leaf node
         assert!(!bst.search(2));
-        bst.delete(4);
+
+        assert!(bst.delete(4)); // Leaf node
         assert!(!bst.search(4));
-        bst.delete(6);
+
+        assert!(bst.delete(6)); // Node with one child
         assert!(!bst.search(6));
-        bst.delete(8);
+
+        assert!(bst.delete(8)); // Last node
         assert!(!bst.search(8));
+
+        // Empty tree
+        assert!(bst.is_empty());
+
+        // Try to delete non-existent values
+        assert!(!bst.delete(10)); // Value never existed
+        assert!(!bst.delete(5)); // Value existed but was deleted
+
+        // Insert a new value and ensure we can delete it
+        bst.insert(15);
+        assert!(bst.delete(15));
+        assert!(!bst.search(15));
+        assert!(bst.is_empty());
     }
 }
