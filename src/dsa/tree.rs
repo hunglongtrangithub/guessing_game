@@ -27,6 +27,24 @@ struct BinarySearchTree {
     root: Option<Box<Node<i32>>>,
 }
 
+impl Drop for BinarySearchTree {
+    fn drop(&mut self) {
+        let mut stack = Vec::new();
+        if let Some(root) = self.root.take() {
+            stack.push(root);
+        }
+        while let Some(mut node) = stack.pop() {
+            if let Some(right) = node.right.take() {
+                stack.push(right);
+            }
+            if let Some(left) = node.left.take() {
+                stack.push(left);
+            }
+            // Node is dropped here
+        }
+    }
+}
+
 impl BinarySearchTree {
     fn new() -> Self {
         BinarySearchTree { root: None }
