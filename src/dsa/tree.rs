@@ -105,8 +105,7 @@ impl BinarySearchTree {
                         // leaf node -> remove it
                         (None, None) => (None, true),
                         // one child -> replace node with child
-                        (Some(left), None) => (Some(left), true),
-                        (None, Some(right)) => (Some(right), true),
+                        (Some(node), None) | (None, Some(node)) => (Some(node), true),
                         // two children
                         (Some(left), Some(right)) => {
                             fn remove_min(
