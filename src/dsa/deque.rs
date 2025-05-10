@@ -156,14 +156,9 @@ where
         let mut curr = Some(self.header.clone());
         while let Some(node) = curr {
             let mut node_mut = node.borrow_mut();
-            let next = node_mut.next.clone();
-            let prev = node_mut.prev.clone();
-            node_mut.next = prev;
-            node_mut.prev = next;
-            // unsafe {
-            //     std::ptr::swap(&mut node_mut.next as *mut _, &mut node_mut.prev as *mut _);
-            // }
-            // std::mem::swap(&mut node_mut.next, &mut node_mut.prev);
+            unsafe {
+                std::ptr::swap(&mut node_mut.next as *mut _, &mut node_mut.prev as *mut _);
+            }
             curr = node_mut.prev.clone();
         }
 
